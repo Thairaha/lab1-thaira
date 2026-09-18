@@ -2,6 +2,7 @@ import os
 
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.database import Base, engine, get_db
 from app import models, schemas
@@ -31,3 +32,16 @@ def get_note(note_id: int, db: Session = Depends(get_db)):
     if note is None:
         raise HTTPException(status_code=404, detail="Note not found")
     return note
+
+
+@app.post("/notes", response_model=schemas.NoteOut, status_code=201)
+def create_note(note: schemas.NoteCreate, db: Session = Depends(get_db)):
+    try:
+        db_note = models.Note(title=note.title, content=note.content, author=note.author)
+        db.add(db_note)
+        db.commit()
+        db.refresh(db_note)
+        return db_note
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Internal server error")

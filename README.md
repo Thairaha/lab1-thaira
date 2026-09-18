@@ -1,9 +1,12 @@
 # Laboratorio 1 — GitHub, Docker y API REST
 
-## Integrante
-- Nombre completo — usuario GitHub
+## Integrantes
+- Thaira Hernandez — [Thairaha](https://github.com/Thairaha)
 
-_(Laboratorio desarrollado individualmente; ver nota en la sección de Dificultades y aprendizajes)_
+> Laboratorio realizado de forma individual. El flujo de trabajo original (pensado para
+> parejas) se adaptó: en lugar de una revisión cruzada entre compañeros, cada Pull
+> Request incluye un comentario de auto-revisión antes del merge, verificando que el
+> código cumple los requisitos del laboratorio (endpoints, códigos de estado, pruebas).
 
 ## Descripción
 API REST sencilla para gestionar notas de trabajo de un equipo (`team-notes-api`).
@@ -11,12 +14,10 @@ Permite crear, consultar, actualizar y eliminar notas, cada una con título, con
 autor y fecha de creación.
 
 ## Tecnologías
-Backend construido con **Python 3.12** y el framework **FastAPI**, usando **PostgreSQL 16** como base de datos y **SQLAlchemy** como ORM, con **Pydantic** para validación de datos. Todo se ejecuta en contenedores con **Docker y Docker Compose**.
-
-- Python 3.12 (FastAPI 0.115)
+- Python 3.12
+- FastAPI
 - PostgreSQL 16
-- SQLAlchemy 2.0 (ORM)
-- Pydantic 2.9 (validación de datos)
+- SQLAlchemy (ORM)
 - Docker y Docker Compose
 
 ## Estructura del proyecto
@@ -68,32 +69,48 @@ No se requiere un script SQL manual ni migraciones adicionales para este laborat
 
 ## Pruebas realizadas
 
-_(Completar con capturas de pantalla de Postman/Insomnia/Thunder Client/curl para cada endpoint)_
+Todas las pruebas se ejecutaron con Postman contra la API corriendo en Docker
+(`docker compose up --build`). Capturas de cada prueba disponibles en el documento de
+entrega.
 
 | Prueba                  | Resultado esperado           | Resultado obtenido |
 |--------------------------|-------------------------------|----------------------|
-| GET /health              | Estado de API activo          |                      |
-| GET /notes sin registros    | Lista vacía                  |                      |
-| POST /notes válido        | 201 y nota creada             |                      |
-| POST /notes inválido       | 400                           |                      |
-| GET /notes/{id} existente    | 200 y nota encontrada          |                      |
-| GET /notes/{id} inexistente   | 404                           |                      |
-| PUT /notes/{id} válido      | 200 y nota actualizada          |                      |
-| PUT /notes/{id} inexistente   | 404                           |                      |
-| DELETE /notes/{id} existente  | 200                           |                      |
-| DELETE /notes/{id} inexistente | 404                           |                      |
+| GET /health              | Estado de API activo          | OK — 200, `{"status":"ok","environment":"development"}` |
+| GET /notes sin registros    | Lista vacía                  | OK — 200, `[]` |
+| POST /notes válido        | 201 y nota creada             | OK — 201, nota creada con `id` y `created_at` |
+| POST /notes inválido       | 400                           | OK — 400, `{"detail":"Invalid or missing data"}` |
+| GET /notes/{id} existente    | 200 y nota encontrada          | OK — 200, nota devuelta correctamente |
+| GET /notes/{id} inexistente   | 404                           | OK — 404, `{"detail":"Note not found"}` |
+| PUT /notes/{id} válido      | 200 y nota actualizada          | OK — 200, nota actualizada correctamente |
+| PUT /notes/{id} inexistente   | 404                           | OK — 404, `{"detail":"Note not found"}` |
+| DELETE /notes/{id} existente  | 200                           | OK — 200, nota eliminada |
+| DELETE /notes/{id} inexistente | 404                           | OK — 404, `{"detail":"Note not found"}` |
 
 ## Persistencia
-Se verificó que los datos persisten tras `docker compose down` y `docker compose up`,
-gracias al volumen `db_data` definido en `compose.yaml`.
+Se verificó que los datos persisten tras `docker compose down` y `docker compose up`
+(sin usar `-v`), gracias al volumen `db_data` definido en `compose.yaml`: la nota
+creada durante las pruebas siguió apareciendo en `GET /notes` después de reiniciar los
+contenedores.
 
 ## Dificultades y aprendizajes
 
-_(Completar: dificultades encontradas, cómo se resolvieron, y qué se aprendió del
-proceso de ramas, Pull Requests, resolución de conflictos y Docker. Indicar que el
-laboratorio se desarrolló individualmente y cómo se adaptó el flujo de revisión
-cruzada — ej. autorevisión documentada en cada PR — para cumplir igual con la
-práctica de branching, PRs y resolución de conflictos.)_
+- **Condición de carrera API/base de datos**: al levantar `api` y `db` juntos, la API
+  intentaba conectarse a PostgreSQL antes de que este aceptara conexiones
+  (`depends_on` solo esperaba a que el contenedor arrancara, no a que el servicio
+  estuviera listo). Se resolvió agregando un `healthcheck` con `pg_isready` a `db` y
+  cambiando `depends_on` de `api` a `condition: service_healthy`.
+- **Instalación de Docker Desktop en Windows**: requirió habilitar WSL2
+  (`wsl --install`) y reiniciar el sistema antes de que Docker Desktop pudiera
+  ejecutar contenedores Linux.
+- **Trabajo individual con flujo de Git colaborativo**: al no tener un compañero de
+  equipo, se adaptó el flujo original manteniendo todos los elementos exigidos
+  (ramas `main`/`develop`, ramas feature, Pull Requests, conflicto de merge real y su
+  resolución), sustituyendo la revisión cruzada por una auto-revisión documentada en
+  cada PR antes de fusionarlo.
+- **Aprendizaje principal**: el valor de separar el trabajo en commits pequeños y
+  descriptivos por rama feature, y de nunca usar `docker compose down -v` cuando se
+  quiere conservar los datos, ya que ese flag elimina también el volumen de la base
+  de datos.
 
 ## Repositorio
-Link: _(pegar aquí el link del repositorio en GitHub)_
+Link: https://github.com/Thairaha/lab1-thaira

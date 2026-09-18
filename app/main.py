@@ -10,3 +10,8 @@ app = FastAPI(title="team-notes-api")
 
 # Crea las tablas si no existen (estrategia simple de inicializacion para el laboratorio)
 Base.metadata.create_all(bind=engine)
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "environment": APP_ENV}

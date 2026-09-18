@@ -11,10 +11,12 @@ Permite crear, consultar, actualizar y eliminar notas, cada una con título, con
 autor y fecha de creación.
 
 ## Tecnologías
-- Python 3.12
-- FastAPI
+Backend construido con **Python 3.12** y el framework **FastAPI**, usando **PostgreSQL 16** como base de datos y **SQLAlchemy** como ORM, con **Pydantic** para validación de datos. Todo se ejecuta en contenedores con **Docker y Docker Compose**.
+
+- Python 3.12 (FastAPI 0.115)
 - PostgreSQL 16
-- SQLAlchemy (ORM)
+- SQLAlchemy 2.0 (ORM)
+- Pydantic 2.9 (validación de datos)
 - Docker y Docker Compose
 
 ## Estructura del proyecto

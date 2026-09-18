@@ -1,8 +1,10 @@
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Depends
+from sqlalchemy.orm import Session
 
-from app.database import Base, engine
+from app.database import Base, engine, get_db
+from app import models, schemas
 
 APP_ENV = os.getenv("APP_ENV", "development")
 
@@ -15,3 +17,17 @@ Base.metadata.create_all(bind=engine)
 @app.get("/health")
 def health_check():
     return {"status": "ok", "environment": APP_ENV}
+
+
+@app.get("/notes", response_model=list[schemas.NoteOut])
+def list_notes(db: Session = Depends(get_db)):
+    notes = db.query(models.Note).order_by(models.Note.id).all()
+    return notes
+
+
+@app.get("/notes/{note_id}", response_model=schemas.NoteOut)
+def get_note(note_id: int, db: Session = Depends(get_db)):
+    note = db.query(models.Note).filter(models.Note.id == note_id).first()
+    if note is None:
+        raise HTTPException(status_code=404, detail="Note not found")
+    return note

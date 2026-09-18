@@ -11,11 +11,11 @@ Permite crear, consultar, actualizar y eliminar notas, cada una con título, con
 autor y fecha de creación.
 
 ## Tecnologías
-- Python 3.12
-- FastAPI
+- Python 3.12 (FastAPI 0.115)
 - PostgreSQL 16
-- SQLAlchemy (ORM)
+- SQLAlchemy 2.0 (ORM)
 - Docker y Docker Compose
+- Pydantic 2.9 (validación de datos)
 
 ## Estructura del proyecto
 ```
